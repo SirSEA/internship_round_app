@@ -30,6 +30,10 @@
   --color-surface-alt: #f5f5ef;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;

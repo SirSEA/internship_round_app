@@ -22,21 +22,21 @@ function DashboardLayout({ children }) {
     <div className="flex min-h-screen">
       <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-cream-200 sticky top-0 z-30">
+        <div className="lc-dash-mobile-header">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-cream-50 transition-colors cursor-pointer"
+            className="lc-dash-menu-btn"
             aria-label="Open menu"
           >
-            <svg className="w-5 h-5 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-green-800 flex items-center justify-center">
-              <div className="w-2.5 h-2.5 rounded-full bg-cream-50" />
+          <div className="lc-dash-mobile-logo">
+            <div className="lc-dash-mobile-logo-icon">
+              <div className="lc-dash-mobile-logo-dot" />
             </div>
-            <span className="text-base font-bold text-green-800">LifeCircle</span>
+            <span className="lc-dash-mobile-logo-text">LifeCircle</span>
           </div>
         </div>
         {children}

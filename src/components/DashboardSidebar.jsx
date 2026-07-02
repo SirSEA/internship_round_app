@@ -25,7 +25,7 @@ export default function DashboardSidebar({ open, onClose }) {
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-cream-200">
+      <div className="lc-sidebar-header">
         <Link to="/dashboard" onClick={onClose} className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center">
             <div className="w-3 h-3 rounded-full bg-cream-50" />
@@ -35,18 +35,16 @@ export default function DashboardSidebar({ open, onClose }) {
       </div>
 
       <div className="p-4 border-b border-cream-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-cream-50 font-semibold text-sm">
-            {user.avatar}
-          </div>
+        <div className="lc-sidebar-user">
+          <div className="lc-sidebar-avatar">{user.avatar}</div>
           <div>
-            <p className="font-semibold text-green-900 text-sm">{user.name}</p>
-            <p className="text-xs text-green-600">{user.location}</p>
+            <p className="lc-sidebar-user-name">{user.name}</p>
+            <p className="lc-sidebar-user-email">{user.location}</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="lc-sidebar-nav">
         {sidebarLinks.map((link) => {
           const active = isActive(link.path);
           return (
@@ -54,11 +52,10 @@ export default function DashboardSidebar({ open, onClose }) {
               key={link.path}
               to={link.path}
               onClick={onClose}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                active
-                  ? "bg-green-100 text-green-800"
-                  : "text-green-700 hover:bg-green-50"
-              }`}
+              className={
+                "lc-sidebar-link" +
+                (active ? " lc-sidebar-link-active" : "")
+              }
             >
               <span>{link.icon}</span>
               {link.label}
@@ -67,11 +64,11 @@ export default function DashboardSidebar({ open, onClose }) {
         })}
 
         <div className="pt-3 mt-3 border-t border-cream-200">
-          <p className="px-3 text-xs font-medium text-green-400 uppercase tracking-wider mb-2">Quick Links</p>
+          <p className="lc-sidebar-section">Quick Links</p>
           <Link
             to="/dashboard/communities?tab=family"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+            className="lc-sidebar-link"
           >
             <span>👨‍👩‍👧‍👦</span>
             Family Branches
@@ -79,7 +76,7 @@ export default function DashboardSidebar({ open, onClose }) {
           <Link
             to="/dashboard/communities?tab=clan"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+            className="lc-sidebar-link"
           >
             <span>🔗</span>
             Clan Connections
@@ -87,7 +84,7 @@ export default function DashboardSidebar({ open, onClose }) {
           <Link
             to="/dashboard/communities?tab=village"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+            className="lc-sidebar-link"
           >
             <span>🌍</span>
             Village Links
@@ -95,7 +92,7 @@ export default function DashboardSidebar({ open, onClose }) {
           <Link
             to="/dashboard/communities?tab=lineage"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+            className="lc-sidebar-link"
           >
             <span>📜</span>
             Lineage Records
@@ -103,7 +100,7 @@ export default function DashboardSidebar({ open, onClose }) {
           <Link
             to="/dashboard/communities?tab=people"
             onClick={onClose}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+            className="lc-sidebar-link"
           >
             <span>👤</span>
             Discover People
@@ -111,13 +108,13 @@ export default function DashboardSidebar({ open, onClose }) {
         </div>
 
         <div className="pt-3 mt-3 border-t border-cream-200">
-          <p className="px-3 text-xs font-medium text-green-400 uppercase tracking-wider mb-2">My Communities</p>
+          <p className="lc-sidebar-section">My Communities</p>
           {myCommunities.slice(0, 5).map((c) => (
             <Link
               key={c.id}
               to={`/dashboard/community/${c.id}`}
               onClick={onClose}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors"
+              className="lc-sidebar-link"
             >
               <div className={`w-2.5 h-2.5 rounded-full ${c.color}`} />
               <span className="truncate">{c.name}</span>
@@ -128,7 +125,7 @@ export default function DashboardSidebar({ open, onClose }) {
             onClick={onClose}
             className="block px-3 py-1.5 text-xs text-green-500 hover:text-green-700 mt-1 font-medium"
           >
-            View all →
+            View all &rarr;
           </Link>
         </div>
       </nav>
@@ -145,18 +142,18 @@ export default function DashboardSidebar({ open, onClose }) {
 
   return (
     <>
-      <div className="hidden lg:flex lg:flex-col lg:w-64 flex-shrink-0 bg-white border-r border-cream-200 h-screen sticky top-0">
+      <aside className="lc-sidebar hidden lg:flex lg:flex-col">
         {sidebarContent}
-      </div>
+      </aside>
 
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-white shadow-xl flex flex-col">
+          <div className="lc-sidebar-overlay" onClick={onClose} />
+          <aside className="lc-sidebar lc-sidebar-open bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-end p-3 border-b border-cream-200 lg:hidden">
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-cream-50 transition-colors cursor-pointer"
+                className="lc-dash-menu-btn"
                 aria-label="Close menu"
               >
                 <svg className="w-5 h-5 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">

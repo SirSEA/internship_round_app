@@ -1,41 +1,75 @@
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/login", label: "Login" },
-  { to: "/register", label: "Get Started" },
+const sectionLinks = [
+  { id: "home", label: "Home" },
+  { id: "communities", label: "Communities" },
+  { id: "features", label: "Features" },
+  { id: "map", label: "Map" },
 ];
 
 export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const isLanding = location.pathname === "/";
 
   if (isDashboard) return null;
 
+  const handleSectionClick = (e, sectionId) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    if (isLanding) {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/#" + sectionId);
+    }
+  };
+
   return (
-    <nav className="sticky top-0 z-50 bg-cream-50/95 backdrop-blur border-b border-cream-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-cream-50" />
+    <nav className="lc-nav">
+      <div className="lc-nav-inner">
+        <div className="lc-nav-content">
+          <Link to="/" className="lc-logo" onClick={() => setMobileOpen(false)}>
+            <div className="lc-logo-icon">
+              <div className="lc-logo-dot" />
             </div>
-            <span className="text-xl font-bold text-green-800">LifeCircle</span>
+            <span className="lc-logo-text">LifeCircle</span>
           </Link>
-          <div className="flex items-center gap-4 flex-wrap">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={
-                  link.to === "/register"
-                    ? "bg-green-800 text-cream-50 px-5 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
-                    : "text-green-900 hover:text-green-700 font-medium transition-colors"
-                }
+
+          <button
+            className="lc-mobile-toggle"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          <div className={"lc-nav-links" + (mobileOpen ? " lc-mobile-open" : "")}>
+            {sectionLinks.map((link) => (
+              <a
+                key={link.id}
+                href={"#" + link.id}
+                className="lc-nav-link"
+                onClick={(e) => handleSectionClick(e, link.id)}
               >
                 {link.label}
-              </Link>
+              </a>
             ))}
+            <Link to="/login" className="lc-nav-link" onClick={() => setMobileOpen(false)}>
+              Sign In
+            </Link>
+            <Link to="/register" className="lc-nav-cta" onClick={() => setMobileOpen(false)}>
+              Get Started
+            </Link>
           </div>
         </div>
       </div>
