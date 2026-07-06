@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { lifeCircleMap } from "../data/mock";
 
 const features = [
   {
     title: "LifeCircle Map",
-    desc: "Build a digital map of your life — reconnect with schools, faith centers, neighborhoods, workplaces, family, and every community you belong to.",
+    desc: "Build a digital map of your life, reconnect with schools, faith centers, neighborhoods, workplaces, family, and every community you belong to.",
     icon: "🗺️",
   },
   {
@@ -14,7 +13,7 @@ const features = [
   },
   {
     title: "Community Events",
-    desc: "Organize and join events that bring your communities together — from festivals to fundraisers.",
+    desc: "Organize and join events that bring your communities together, from festivals to fundraisers.",
     icon: "📅",
   },
   {
@@ -35,15 +34,26 @@ const features = [
 ];
 
 const communityTypes = [
-  { label: "Schools", icon: "🎓", count: "Reconnect with classmates" },
-  { label: "Churches", icon: "⛪", count: "Faith communities" },
-  { label: "Mosques", icon: "🕌", count: "Islamic centers" },
-  { label: "Neighborhoods", icon: "🏘️", count: "Where you grew up" },
-  { label: "Workplace", icon: "💼", count: "Colleagues & alumni" },
-  { label: "Family", icon: "👨‍👩‍👧‍👦", count: "Clans & circles" },
-  { label: "Social Clubs", icon: "🎨", count: "Hobbies & interests" },
-  { label: "Village/Town", icon: "🌍", count: "Home associations" },
-  { label: "Professional", icon: "📋", count: "Industry networks" },
+  { label: "Schools", icon: "🎓", desc: "Reconnect with classmates" },
+  { label: "Churches", icon: "⛪", desc: "Faith communities" },
+  { label: "Mosques", icon: "🕌", desc: "Islamic centers" },
+  { label: "Neighborhoods", icon: "🏘️", desc: "Where you grew up" },
+  { label: "Workplace", icon: "💼", desc: "Colleagues & alumni" },
+  { label: "Family", icon: "👨‍👩‍👧‍👦", desc: "Clans & circles" },
+  { label: "Social Clubs", icon: "🎨", desc: "Hobbies & interests" },
+  { label: "Village/Town", icon: "🌍", desc: "Home associations" },
+  { label: "Professional", icon: "📋", desc: "Industry networks" },
+];
+
+const previewCategories = [
+  { label: "Schools", icon: "🎓", count: 2 },
+  { label: "Faith", icon: "🕊️", count: 3 },
+  { label: "Neighborhoods", icon: "🏘️", count: 1 },
+  { label: "Family", icon: "👨‍👩‍👧‍👦", count: 4 },
+  { label: "Workplace", icon: "💼", count: 2 },
+  { label: "Social", icon: "🎨", count: 3 },
+  { label: "Village/Town", icon: "🌍", count: 2 },
+  { label: "Professional", icon: "📋", count: 1 },
 ];
 
 export default function Landing() {
@@ -56,22 +66,22 @@ export default function Landing() {
           <div className="max-w-3xl">
             <div className="lc-hero-badge">
               <span className="lc-hero-dot" />
-              Now available — start mapping your life
+              Now available, start mapping your life
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold text-green-900 leading-tight mb-6">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-brand leading-tight mb-6">
               Reconnect. Rebuild.
               <br />
-              <span className="text-green-700">Thrive Together.</span>
+              <span className="text-brand-dark">Thrive Together.</span>
             </h1>
-            <p className="text-lg md:text-xl text-green-700/80 mb-8 max-w-2xl">
-              LifeCircle helps you build a digital map of your life — reconnecting you with
+            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl">
+              ROUND helps you build a digital map of your life, reconnecting you with
               schools, faith centers, neighborhoods, workplaces, and every community
               that shaped who you are. Collaborate, support one another, and create
               economic opportunity together.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/register" className="lc-btn-primary">
-                Start Your LifeCircle
+                Get Started
               </Link>
               <Link to="/login" className="lc-btn-secondary">
                 Sign In
@@ -89,7 +99,7 @@ export default function Landing() {
               Map Every Part of Your Life
             </h2>
             <p className="lc-section-desc">
-              Connect with every community that has shaped your journey — from your
+              Connect with every community that has shaped your journey, from your
               childhood neighborhood to your professional network.
             </p>
           </div>
@@ -98,8 +108,8 @@ export default function Landing() {
               <div key={ct.label} className="lc-community-card">
                 <span className="text-2xl">{ct.icon}</span>
                 <div>
-                  <h3 className="font-semibold text-green-900">{ct.label}</h3>
-                  <p className="text-xs text-green-600">{ct.count}</p>
+                  <h3 className="font-semibold text-brand">{ct.label}</h3>
+                  <p className="text-xs text-brand/60">{ct.desc}</p>
                 </div>
               </div>
             ))}
@@ -122,8 +132,8 @@ export default function Landing() {
             {features.map((f) => (
               <div key={f.title} className="lc-feature-card">
                 <span className="text-3xl mb-4 block">{f.icon}</span>
-                <h3 className="text-lg font-bold text-green-900 mb-2">{f.title}</h3>
-                <p className="text-green-700/70 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="text-lg font-bold text-brand mb-2">{f.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -138,42 +148,40 @@ export default function Landing() {
               <h2 className="lc-section-title">
                 Your Life, Mapped
               </h2>
-              <p className="text-green-700/70 mb-6 text-lg">
+              <p className="text-gray-500 mb-6 text-lg">
                 See every community you belong to in one place. Rediscover old
                 connections, strengthen existing relationships, and find new
                 opportunities through your shared life experiences.
               </p>
               <div className="space-y-3">
-                {lifeCircleMap.map((item) => (
-                  <div key={item.label} className="lc-map-legend">
+                {previewCategories.map((item) => (
+                  <div key={item.label} className="flex items-center gap-3">
                     <span className="text-lg">{item.icon}</span>
-                    <div>
-                      <span className="font-medium text-green-900">{item.label}</span>
-                      <span className="text-green-600 text-sm ml-2">
-                        {item.communities.join(", ")}
-                      </span>
-                    </div>
+                    <span className="font-medium text-brand">{item.label}</span>
+                    <span className="text-sm text-brand/60 ml-1">
+                      {item.count} communities
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="lc-card-gradient text-cream-50 p-8">
+            <div className="lc-card-gradient p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-cream-50/20 flex items-center justify-center">
-                  <div className="w-4 h-4 rounded-full bg-cream-50" />
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-white" />
                 </div>
                 <div>
-                  <p className="font-semibold">Your LifeCircle</p>
-                  <p className="text-sm text-cream-300">12 communities connected</p>
+                  <p className="font-semibold text-white">Your ROUND</p>
+                  <p className="text-sm text-white/70">12 communities connected</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {lifeCircleMap.slice(0, 8).map((item) => (
+                {previewCategories.slice(0, 8).map((item) => (
                   <div key={item.label} className="lc-map-preview">
                     <span className="text-xl block mb-1">{item.icon}</span>
                     <div>
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="text-xs text-cream-300">{item.communities.length} communities</p>
+                      <p className="text-sm font-medium text-white">{item.label}</p>
+                      <p className="text-xs text-white/70">{item.count} communities</p>
                     </div>
                   </div>
                 ))}
@@ -189,7 +197,7 @@ export default function Landing() {
           <h2 className="lc-section-title">
             Ready to Reconnect?
           </h2>
-          <p className="text-green-700/70 mb-8 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 mb-8 text-lg max-w-2xl mx-auto">
             Join thousands rebuilding their community networks and creating economic
             opportunity together.
           </p>
@@ -197,7 +205,7 @@ export default function Landing() {
             to="/register"
             className="lc-btn-primary"
           >
-            Create Your LifeCircle Free
+            Get Started Free
           </Link>
         </div>
       </section>

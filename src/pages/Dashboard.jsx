@@ -1,14 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { user, communities, events, feeds, lifeCircleMap, enrichedCommunities } from "../data/mock";
+import { user as mockUser, communities as mockCommunities, events, feeds, lifeCircleMap, enrichedCommunities } from "../data/mock";
+import { getDashboardSummary, getDashboardActivity, getPaymentReminders, getMyCommunities } from "../services/api";
 import Pagination from "../components/Pagination";
-
-const statCards = [
-  { label: "Connections", value: user.stats.connections, icon: "🤝" },
-  { label: "Communities", value: user.stats.communities, icon: "👥" },
-  { label: "Events", value: user.stats.events, icon: "📅" },
-  { label: "Contributions", value: user.stats.contributions, icon: "💰" },
-];
 
 const quickActions = [
   { label: "Browse Communities", icon: "👥", to: "/dashboard/communities" },
@@ -25,32 +19,63 @@ export default function Dashboard() {
   const EVENTS_PER_PAGE = 4;
   const COMMUNITIES_PER_PAGE = 6;
 
+  const [summary, setSummary] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [reminders, setReminders] = useState([]);
+  const [myCommunities, setMyCommunities] = useState([]);
+  const [userName, setUserName] = useState(mockUser.name);
+
+  useEffect(() => {
+    getDashboardSummary().then(setSummary).catch(() => {});
+    getDashboardActivity().then(setActivity).catch(() => {});
+    getPaymentReminders().then(setReminders).catch(() => {});
+    getMyCommunities().then((data) => {
+      if (data?.communities) setMyCommunities(data.communities);
+    }).catch(() => {});
+  }, []);
+
+  const stats = summary ? [
+    { label: "Connections", value: summary.connections ?? 0, icon: "🤝" },
+    { label: "Communities", value: summary.communities ?? 0, icon: "👥" },
+    { label: "Events", value: summary.events ?? 0, icon: "📅" },
+    { label: "Contributions", value: summary.contributions ?? mockUser.stats.contributions, icon: "💰" },
+  ] : [
+    { label: "Connections", value: mockUser.stats.connections, icon: "🤝" },
+    { label: "Communities", value: mockUser.stats.communities, icon: "👥" },
+    { label: "Events", value: mockUser.stats.events, icon: "📅" },
+    { label: "Contributions", value: mockUser.stats.contributions, icon: "💰" },
+  ];
+
+  const displayFeeds = activity.length > 0 ? activity : feeds;
+  const displayEvents = events;
+  const displayCommunities = myCommunities.length > 0 ? myCommunities : mockCommunities;
+
+  const paginatedFeeds = displayFeeds.slice((feedsPage - 1) * FEEDS_PER_PAGE, feedsPage * FEEDS_PER_PAGE);
+  const paginatedEvents = displayEvents.slice((eventsPage - 1) * EVENTS_PER_PAGE, eventsPage * EVENTS_PER_PAGE);
+  const paginatedCommunities = displayCommunities.slice((communitiesPage - 1) * COMMUNITIES_PER_PAGE, communitiesPage * COMMUNITIES_PER_PAGE);
+
   const allFunds = enrichedCommunities.flatMap((c) =>
     c.fundAccounts.map((f) => ({ ...f, community: c.name, communityId: c.id }))
   );
-  const pendingReminders = enrichedCommunities.flatMap((c) =>
+  const pendingReminders = reminders.length > 0 ? reminders : enrichedCommunities.flatMap((c) =>
     c.fundAccounts.filter((f) => {
       const pct = (f.balance / f.goal) * 100;
       return pct > 0 && pct < 100;
     }).slice(0, 1).map((f) => ({ ...f, community: c.name, communityId: c.id }))
   ).slice(0, 4);
 
-  const paginatedFeeds = feeds.slice((feedsPage - 1) * FEEDS_PER_PAGE, feedsPage * FEEDS_PER_PAGE);
-  const paginatedEvents = events.slice((eventsPage - 1) * EVENTS_PER_PAGE, eventsPage * EVENTS_PER_PAGE);
-  const paginatedCommunities = communities.slice((communitiesPage - 1) * COMMUNITIES_PER_PAGE, communitiesPage * COMMUNITIES_PER_PAGE);
+  const savings = summary?.savings || mockUser.savings;
 
   return (
     <div className="lc-dashboard">
       <div className="lc-dashboard-inner">
-        {/* Header */}
         <div className="lc-page-header mb-8">
-          <h1>Welcome back, {user.name.split(" ")[0]}</h1>
-          <p>Here&apos;s what&apos;s happening in your communities today.</p>
+          <h1 className="text-brand">Welcome back</h1>
+          <p className="text-gray-500">Here&apos;s what&apos;s happening in your communities today.</p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {statCards.map((s) => (
+          {stats.map((s) => (
             <div key={s.label} className="lc-stat-card">
               <span className="lc-stat-icon">{s.icon}</span>
               <p className="lc-stat-value">{s.value}</p>
@@ -60,11 +85,9 @@ export default function Dashboard() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Quick Actions */}
             <div className="lc-card">
-              <h2 className="font-bold text-green-900 mb-4">Quick Actions</h2>
+              <h2 className="font-bold text-brand mb-4">Quick Actions</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {quickActions.map((a) => (
                   <Link key={a.label} to={a.to} className="lc-quick-action">
@@ -75,10 +98,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Payment Reminders */}
             {pendingReminders.length > 0 && (
               <div className="lc-card">
-                <h2 className="font-bold text-green-900 mb-4">⏰ Payment Reminders</h2>
+                <h2 className="font-bold text-brand mb-4">Payment Reminders</h2>
                 <div className="space-y-3">
                   {pendingReminders.map((r, i) => (
                     <Link
@@ -91,7 +113,7 @@ export default function Dashboard() {
                         <p className="lc-reminder-meta">{r.community} &middot; {r.dueDate}</p>
                       </div>
                       <div className="text-right">
-                        <p className="lc-reminder-amount">₦{(r.goal - r.balance).toLocaleString()} remaining</p>
+                        <p className="lc-reminder-amount">{(r.goal - r.balance).toLocaleString()} remaining</p>
                         <span className="lc-reminder-action">Contribute now &rarr;</span>
                       </div>
                     </Link>
@@ -100,10 +122,9 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Events */}
             <div className="lc-card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-green-900">Upcoming Events</h2>
+                <h2 className="font-bold text-brand">Upcoming Events</h2>
                 <Link to="/dashboard/events" className="lc-section-link">View all</Link>
               </div>
               <div className="space-y-3">
@@ -125,17 +146,16 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <Pagination page={eventsPage} totalPages={Math.ceil(events.length / EVENTS_PER_PAGE)} onPageChange={setEventsPage} />
+              <Pagination page={eventsPage} totalPages={Math.ceil(displayEvents.length / EVENTS_PER_PAGE)} onPageChange={setEventsPage} />
             </div>
 
-            {/* Activity Feed */}
             <div className="lc-card">
-              <h2 className="font-bold text-green-900 mb-4">Community Activity</h2>
+              <h2 className="font-bold text-brand mb-4">Community Activity</h2>
               <div className="space-y-4">
-                {paginatedFeeds.map((f) => (
-                  <div key={f.id} className="lc-activity-item">
+                {paginatedFeeds.map((f, i) => (
+                  <div key={f.id || i} className="lc-activity-item">
                     <div className="lc-activity-avatar">
-                      {f.avatar}
+                      {f.avatar || f.user?.charAt(0)}
                     </div>
                     <div>
                       <p className="lc-activity-text">
@@ -147,32 +167,30 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <Pagination page={feedsPage} totalPages={Math.ceil(feeds.length / FEEDS_PER_PAGE)} onPageChange={setFeedsPage} />
+              <Pagination page={feedsPage} totalPages={Math.ceil(displayFeeds.length / FEEDS_PER_PAGE)} onPageChange={setFeedsPage} />
             </div>
           </div>
 
-          {/* Right column */}
           <div className="space-y-6">
-            {/* Personal Savings Summary */}
             <div className="lc-card-gradient">
-              <h3 className="font-bold mb-3">Your Savings Summary</h3>
-              <p className="lc-savings-amount">₦{(user.savings.totalSaved / 1000).toFixed(1)}K</p>
+              <h3 className="font-bold text-white mb-3">Your Savings Summary</h3>
+              <p className="lc-savings-amount">{(savings.totalSaved / 1000).toFixed(1)}K</p>
               <div className="space-y-2">
                 <div className="lc-savings-row">
-                  <span className="lc-savings-label">Daily</span>
-                  <span className="lc-savings-value">₦{(user.savings.dailyBalance / 1000).toFixed(1)}K</span>
+                  <span className="text-white/60">Daily</span>
+                  <span className="font-semibold text-white">{(savings.dailyBalance / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
-                  <span className="lc-savings-label">Monthly</span>
-                  <span className="lc-savings-value">₦{(user.savings.monthlyBalance / 1000).toFixed(1)}K</span>
+                  <span className="text-white/60">Monthly</span>
+                  <span className="font-semibold text-white">{(savings.monthlyBalance / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
-                  <span className="lc-savings-label">Rotational</span>
-                  <span className="lc-savings-value">₦{(user.savings.rotationalBalance / 1000).toFixed(1)}K</span>
+                  <span className="text-white/60">Rotational</span>
+                  <span className="font-semibold text-white">{(savings.rotationalBalance / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
-                  <span className="lc-savings-label">Goal-Based</span>
-                  <span className="lc-savings-value">₦{(user.savings.goalBalance / 1000).toFixed(1)}K</span>
+                  <span className="text-white/60">Goal Based</span>
+                  <span className="font-semibold text-white">{(savings.goalBalance / 1000).toFixed(1)}K</span>
                 </div>
               </div>
               <Link to="/dashboard/funds" className="lc-savings-link">
@@ -180,10 +198,9 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            {/* LifeCircle Map */}
             <div className="lc-card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-green-900">Your LifeCircle</h2>
+                <h2 className="font-bold text-brand">Your LifeCircle</h2>
                 <Link to="/dashboard/map" className="lc-section-link">View map</Link>
               </div>
               <div className="space-y-3">
@@ -191,11 +208,11 @@ export default function Dashboard() {
                   <Link
                     key={item.label}
                     to="/dashboard/map"
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-cream-50 transition-colors"
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-blue-50 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{item.icon}</span>
-                      <span className="text-sm font-medium text-green-900">{item.label}</span>
+                      <span className="text-sm font-medium text-brand">{item.label}</span>
                     </div>
                     <span className="lc-badge lc-badge-sm">{item.communities.length}</span>
                   </Link>
@@ -203,10 +220,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* My Communities */}
             <div className="lc-card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-green-900">My Communities</h2>
+                <h2 className="font-bold text-brand">My Communities</h2>
                 <Link to="/dashboard/communities" className="lc-section-link">Manage</Link>
               </div>
               <div className="space-y-3">
@@ -216,8 +232,8 @@ export default function Dashboard() {
                     to={`/dashboard/community/${c.id}`}
                     className="lc-community-item"
                   >
-                    <div className={`lc-community-avatar ${c.color}`}>
-                      {c.name.charAt(0)}
+                    <div className={`lc-community-avatar ${c.color || "bg-brand"}`}>
+                      {c.name?.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="lc-community-name">{c.name}</p>
@@ -230,12 +246,11 @@ export default function Dashboard() {
                   </Link>
                 ))}
               </div>
-              <Pagination page={communitiesPage} totalPages={Math.ceil(communities.length / COMMUNITIES_PER_PAGE)} onPageChange={setCommunitiesPage} />
+              <Pagination page={communitiesPage} totalPages={Math.ceil(displayCommunities.length / COMMUNITIES_PER_PAGE)} onPageChange={setCommunitiesPage} />
             </div>
 
-            {/* Transparency Dashboard */}
             <div className="lc-card">
-              <h2 className="font-bold text-green-900 mb-3">📊 Transparency Dashboard</h2>
+              <h2 className="font-bold text-brand mb-3">Transparency Dashboard</h2>
               <div className="space-y-3 text-sm">
                 {allFunds.slice(0, 4).map((f, i) => {
                   const pct = Math.min(100, (f.balance / f.goal) * 100);

@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { user, communities } from "../data/mock";
+import { useAuth } from "../context/AuthContext";
 
 const sidebarLinks = [
   { label: "Dashboard", path: "/dashboard", icon: "📊" },
@@ -12,6 +13,7 @@ const sidebarLinks = [
 ];
 
 export default function DashboardSidebar({ open, onClose }) {
+  const { logout } = useAuth();
   const location = useLocation();
 
   const isActive = (path) => {
@@ -26,11 +28,8 @@ export default function DashboardSidebar({ open, onClose }) {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       <div className="lc-sidebar-header">
-        <Link to="/dashboard" onClick={onClose} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-800 flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-cream-50" />
-          </div>
-          <span className="text-lg font-bold text-green-800">LifeCircle</span>
+        <Link to="/dashboard" onClick={onClose} className="no-underline">
+          <span className="text-xl font-bold text-brand tracking-[0.02em] uppercase">ROUND</span>
         </Link>
       </div>
 
@@ -132,9 +131,7 @@ export default function DashboardSidebar({ open, onClose }) {
 
       <div className="p-4 border-t border-cream-200 space-y-3">
         <button
-          onClick={() => {
-            window.location.href = "/";
-          }}
+          onClick={logout}
           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
