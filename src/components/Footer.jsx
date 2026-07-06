@@ -9,11 +9,8 @@ export default function Footer() {
       <div className="lc-container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <div className="lc-footer-brand">
-              <div className="lc-footer-logo">
-                <div className="lc-footer-logo-dot" />
-              </div>
-              <span className="lc-footer-logo-text">LifeCircle</span>
+            <div className="mb-3">
+              <span className="text-[32px] font-bold text-white tracking-[0.02em] uppercase">ROUND</span>
             </div>
             <p className="lc-footer-desc">
               Building community relationships and economic networks. Helping people
@@ -23,22 +20,23 @@ export default function Footer() {
           <div>
             <h4 className="lc-footer-heading">Platform</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/" className="lc-footer-link">Home</Link>
-              <Link to="/login" className="lc-footer-link">Login</Link>
-              <Link to="/register" className="lc-footer-link">Register</Link>
+              <Link to="/" className="text-white no-underline hover:underline">Home</Link>
+              <Link to="/login" className="text-white no-underline hover:underline">Login</Link>
+              <Link to="/register" className="text-white no-underline hover:underline">Register</Link>
+              <Link to="/forgot-password" className="text-white no-underline hover:underline">Forgot Password</Link>
             </div>
           </div>
           <div>
             <h4 className="lc-footer-heading">Community</h4>
-            <div className="flex flex-col gap-2 text-cream-300">
-              <span className="lc-footer-link">About</span>
-              <span className="lc-footer-link">Blog</span>
-              <span className="lc-footer-link">Support</span>
+            <div className="flex flex-col gap-2">
+              <span className="text-white/60">About</span>
+              <span className="text-white/60">Blog</span>
+              <span className="text-white/60">Support</span>
             </div>
           </div>
         </div>
         <div className="lc-footer-divider">
-          &copy; {new Date().getFullYear()} LifeCircle. All rights reserved.
+          &copy; {new Date().getFullYear()} ROUND. All rights reserved.
         </div>
       </div>
     </footer>

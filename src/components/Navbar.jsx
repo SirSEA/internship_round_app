@@ -32,11 +32,8 @@ export default function Navbar() {
     <nav className="lc-nav">
       <div className="lc-nav-inner">
         <div className="lc-nav-content">
-          <Link to="/" className="lc-logo" onClick={() => setMobileOpen(false)}>
-            <div className="lc-logo-icon">
-              <div className="lc-logo-dot" />
-            </div>
-            <span className="lc-logo-text">LifeCircle</span>
+          <Link to="/" className="no-underline" onClick={() => setMobileOpen(false)}>
+            <span className="text-[32px] font-bold text-brand tracking-[0.02em] uppercase">ROUND</span>
           </Link>
 
           <button
@@ -64,10 +61,10 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Link to="/login" className="lc-nav-link" onClick={() => setMobileOpen(false)}>
+            <Link to="/login" className="text-brand font-semibold no-underline hover:underline mr-6" onClick={() => setMobileOpen(false)}>
               Sign In
             </Link>
-            <Link to="/register" className="lc-nav-cta" onClick={() => setMobileOpen(false)}>
+            <Link to="/register" className="bg-brand text-white no-underline font-bold text-[14px] px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity" onClick={() => setMobileOpen(false)}>
               Get Started
             </Link>
           </div>

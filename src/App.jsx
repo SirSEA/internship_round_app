@@ -6,6 +6,8 @@ import DashboardSidebar from "./components/DashboardSidebar";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Communities from "./pages/Communities";
 import CommunityHub from "./pages/CommunityHub";
@@ -32,12 +34,7 @@ function DashboardLayout({ children }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div className="lc-dash-mobile-logo">
-            <div className="lc-dash-mobile-logo-icon">
-              <div className="lc-dash-mobile-logo-dot" />
-            </div>
-            <span className="lc-dash-mobile-logo-text">LifeCircle</span>
-          </div>
+          <span className="text-xl font-bold text-brand tracking-[0.02em] uppercase">ROUND</span>
         </div>
         {children}
       </div>
@@ -53,6 +50,8 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/dashboard"
           element={
