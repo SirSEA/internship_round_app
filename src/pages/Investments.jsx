@@ -1,23 +1,48 @@
-import { useState } from "react";
-import { user, enrichedCommunities } from "../data/mock";
+import { useState, useEffect } from "react";
+import { getDashboardSummary } from "../services/api";
 import Pagination from "../components/Pagination";
 
 const ITEMS_PER_PAGE = 6;
 
+const defaultInvestments = {
+  totalInvested: 0,
+  totalReturns: 0,
+  activeInvestments: 0,
+};
+
+const defaultPools = [
+  { id: 1, name: "Community Farm Project", type: "Agriculture", totalPool: 500000, membersInvested: 12, expectedReturn: "15%", duration: "12 months", status: "active", community: "St. Mary's Church", communityId: 1 },
+  { id: 2, name: "Real Estate Trust", type: "Real Estate", totalPool: 2000000, membersInvested: 25, expectedReturn: "20%", duration: "24 months", status: "active", community: "Al-Noor Mosque", communityId: 2 },
+  { id: 3, name: "Tech Startup Fund", type: "Venture", totalPool: 1500000, membersInvested: 18, expectedReturn: "25%", duration: "18 months", status: "open", community: "Tech Founders Guild", communityId: 6 },
+];
+
+const statusColors = {
+  active: "bg-green-100 text-green-700",
+  open: "bg-blue-100 text-blue-700",
+  closed: "bg-gray-100 text-gray-600",
+};
+
 export default function Investments() {
+  const [stats, setStats] = useState(defaultInvestments);
+  const [pools] = useState(defaultPools);
   const [page, setPage] = useState(1);
-  const allInvestments = enrichedCommunities.flatMap((c) =>
-    c.investmentPools.map((inv) => ({ ...inv, community: c.name, communityId: c.id }))
-  );
+  const [loading, setLoading] = useState(true);
 
-  const totalPages = Math.ceil(allInvestments.length / ITEMS_PER_PAGE);
-  const paginated = allInvestments.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  useEffect(() => {
+    getDashboardSummary()
+      .then((data) => {
+        setStats({
+          totalInvested: data.savings?.totalSaved || 0,
+          totalReturns: 0,
+          activeInvestments: data.communities || 0,
+        });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-  const statusColors = {
-    active: "bg-green-100 text-green-700",
-    open: "bg-blue-100 text-blue-700",
-    closed: "bg-gray-100 text-gray-600",
-  };
+  const totalPages = Math.ceil(pools.length / ITEMS_PER_PAGE);
+  const paginated = pools.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   return (
     <div className="flex-1 bg-cream-50 min-h-screen">
@@ -30,24 +55,24 @@ export default function Investments() {
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white p-5 rounded-xl border border-cream-200">
             <span className="text-2xl block mb-1">💰</span>
-            <p className="text-2xl font-bold text-green-900">₦{(user.investments.totalInvested / 1000000).toFixed(1)}M</p>
+            <p className="text-2xl font-bold text-green-900">{loading ? "..." : `₦${(stats.totalInvested / 1000000).toFixed(1)}M`}</p>
             <p className="text-sm text-green-600">Total Invested</p>
           </div>
           <div className="bg-white p-5 rounded-xl border border-cream-200">
             <span className="text-2xl block mb-1">📈</span>
-            <p className="text-2xl font-bold text-green-900">₦{(user.investments.totalReturns / 1000).toFixed(1)}K</p>
+            <p className="text-2xl font-bold text-green-900">{loading ? "..." : `₦${(stats.totalReturns / 1000).toFixed(1)}K`}</p>
             <p className="text-sm text-green-600">Total Returns</p>
           </div>
           <div className="bg-white p-5 rounded-xl border border-cream-200">
             <span className="text-2xl block mb-1">📊</span>
-            <p className="text-2xl font-bold text-green-900">{user.investments.activeInvestments}</p>
+            <p className="text-2xl font-bold text-green-900">{loading ? "..." : stats.activeInvestments}</p>
             <p className="text-sm text-green-600">Active Investments</p>
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-green-900">Available Investment Pools</h2>
-          <span className="text-sm text-green-500">{allInvestments.length} pools</span>
+          <span className="text-sm text-green-500">{pools.length} pools</span>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           {paginated.map((inv) => (

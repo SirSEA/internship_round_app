@@ -35,7 +35,7 @@ export default function Marketplace() {
             placeholder="Search marketplace..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full sm:flex-1 sm:min-w-[160px] px-4 py-2.5 rounded-lg border border-cream-200 bg-white text-green-900 placeholder-green-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+            className="w-full sm:flex-1 sm:min-w-[160px] px-4 py-2.5 rounded-lg border border-cream-200 bg-[#F3F4F6] text-green-900 placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
           />
           <div className="flex gap-2 overflow-x-auto">
             {categories.map((cat) => (
