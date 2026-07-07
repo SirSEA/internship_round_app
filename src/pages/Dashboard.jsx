@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getDashboardSummary, getDashboardActivity, getPaymentReminders, getMyCommunities, getDashboardLifeCircleMap, getCommunities } from "../services/api";
+import { getDashboardSummary, getDashboardActivity, getPaymentReminders, getMyCommunities, getDashboardLifeCircleMap } from "../services/api";
 import Pagination from "../components/Pagination";
 
 const quickActions = [
@@ -58,6 +58,9 @@ export default function Dashboard() {
       getPaymentReminders().catch(() => []),
       getMyCommunities().then((d) => (d?.communities ? d.communities : [])).catch(() => []),
     ]).then(([s, a, r, mc]) => {
+      if (s && !s.stats && (s.connections !== undefined || s.communities !== undefined)) {
+        s = { stats: { connections: s.connections || 0, communities: s.communities || 0, events: s.events || 0, contributions: s.contributions || 0 }, savings: s.savings || {} };
+      }
       setSummary(s);
       setActivity(Array.isArray(a) ? a : []);
       setReminders(Array.isArray(r) ? r : []);
@@ -204,19 +207,19 @@ export default function Dashboard() {
               <div className="space-y-2">
                 <div className="lc-savings-row">
                   <span className="text-white/60">Daily</span>
-                  <span className="font-semibold text-white">{(savings.dailyBalance || 0 / 1000).toFixed(1)}K</span>
+                  <span className="font-semibold text-white">{((savings.dailyBalance || 0) / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
                   <span className="text-white/60">Monthly</span>
-                  <span className="font-semibold text-white">{(savings.monthlyBalance || 0 / 1000).toFixed(1)}K</span>
+                  <span className="font-semibold text-white">{((savings.monthlyBalance || 0) / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
                   <span className="text-white/60">Rotational</span>
-                  <span className="font-semibold text-white">{(savings.rotationalBalance || 0 / 1000).toFixed(1)}K</span>
+                  <span className="font-semibold text-white">{((savings.rotationalBalance || 0) / 1000).toFixed(1)}K</span>
                 </div>
                 <div className="lc-savings-row">
                   <span className="text-white/60">Goal Based</span>
-                  <span className="font-semibold text-white">{(savings.goalBalance || 0 / 1000).toFixed(1)}K</span>
+                  <span className="font-semibold text-white">{((savings.goalBalance || 0) / 1000).toFixed(1)}K</span>
                 </div>
               </div>
               <Link to="/dashboard/funds" className="lc-savings-link">
@@ -274,7 +277,7 @@ export default function Dashboard() {
                         <div className="lc-community-meta">
                           <span>{c.type}</span>
                           <span>&middot;</span>
-                          <span>{c.members_count || 0} members</span>
+                          <span>{c.member_count || 0} members</span>
                         </div>
                       </div>
                     </Link>

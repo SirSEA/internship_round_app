@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getDashboardSummary } from "../services/api";
+import { getDashboardSummary, getSavingsPlans } from "../services/api";
+import { allSavingsPlans as mockPlans } from "../data/mock";
 import Pagination from "../components/Pagination";
 
 const PLANS_PER_PAGE = 6;
@@ -23,37 +24,29 @@ const defaultSavings = {
   goalBalance: 0,
 };
 
-const defaultPlans = [
-  { id: 1, name: "Daily Savings", type: "daily", balance: 45000, goal: 100000, contributed: 45, members: 34, nextDue: "2026-06-22", rate: "₦1,000/day", community: "St. Mary's Church", communityId: 1 },
-  { id: 2, name: "Monthly Contribution", type: "monthly", balance: 120000, goal: 500000, contributed: 67, members: 56, nextDue: "2026-07-01", rate: "₦5,000/month", community: "Al-Noor Mosque", communityId: 2 },
-  { id: 3, name: "Rotational Ajo", type: "rotational", balance: 200000, goal: 1000000, contributed: 12, members: 20, nextDue: "2026-06-30", rate: "₦10,000/round", community: "Sunrise Neighborhood", communityId: 3, currentTurn: "Chioma Eze", nextTurn: "Emeka Nwosu" },
-  { id: 4, name: "Education Goal Fund", type: "goal", balance: 50000, goal: 1000000, contributed: 15, members: 22, nextDue: "2026-07-15", rate: "₦2,000/week", community: "Okafor Family Circle", communityId: 5, targetDate: "Dec 2026" },
-  { id: 5, name: "Emergency Savings", type: "monthly", balance: 890000, goal: 2000000, contributed: 112, members: 120, nextDue: "2026-07-01", rate: "₦2,000/month", community: "Tech Founders Guild", communityId: 6 },
-  { id: 6, name: "Building Project Savings", type: "goal", balance: 2500000, goal: 15000000, contributed: 89, members: 95, nextDue: "2026-07-05", rate: "₦10,000/month", community: "Unity High School '12", communityId: 4, targetDate: "Dec 2027" },
-];
-
 export default function Funds() {
   const [filter, setFilter] = useState("All");
   const [planPage, setPlanPage] = useState(1);
   const [tablePage, setTablePage] = useState(1);
   const [savings, setSavings] = useState(defaultSavings);
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [plans] = useState(defaultPlans);
 
   useEffect(() => {
-    getDashboardSummary()
-      .then((data) => {
-        if (data.savings) {
-          setSavings({
-            dailyBalance: data.savings.dailyBalance || 0,
-            monthlyBalance: data.savings.monthlyBalance || 0,
-            rotationalBalance: data.savings.rotationalBalance || 0,
-            goalBalance: data.savings.goalBalance || 0,
-          });
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      getDashboardSummary().catch(() => null),
+      getSavingsPlans().catch(() => mockPlans),
+    ]).then(([data, planData]) => {
+      if (data?.savings) {
+        setSavings({
+          dailyBalance: data.savings.dailyBalance || 0,
+          monthlyBalance: data.savings.monthlyBalance || 0,
+          rotationalBalance: data.savings.rotationalBalance || 0,
+          goalBalance: data.savings.goalBalance || 0,
+        });
+      }
+      setPlans(Array.isArray(planData) ? planData : []);
+    }).finally(() => setLoading(false));
   }, []);
 
   const filtered = filter === "All" ? plans : plans.filter((sp) => sp.type === filter.toLowerCase().replace("-", ""));
@@ -65,33 +58,33 @@ export default function Funds() {
   const paginatedRounds = allRounds.slice((tablePage - 1) * TABLE_ROWS_PER_PAGE, tablePage * TABLE_ROWS_PER_PAGE);
 
   return (
-    <div className="flex-1 bg-cream-50 min-h-screen">
-      <div className="p-6 max-w-6xl mx-auto">
+    <div className="lc-dashboard">
+      <div className="lc-page-inner">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-green-900">Savings & Funds</h1>
-          <p className="text-green-700/70">Manage your savings, contributions, and community funds.</p>
+          <h1 className="lc-heading-page">Savings & Funds</h1>
+          <p className="lc-text-muted">Manage your savings, contributions, and community funds.</p>
         </div>
 
         <div className="grid sm:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-xl border border-cream-200">
+          <div className="lc-card-stat">
             <span className="text-xl block mb-1">{typeIcons.daily}</span>
             <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.dailyBalance / 1000).toFixed(1)}K`}</p>
-            <p className="text-xs text-green-600">Daily Savings</p>
+            <p className="lc-text-subtle">Daily Savings</p>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-cream-200">
+          <div className="lc-card-stat">
             <span className="text-xl block mb-1">{typeIcons.monthly}</span>
             <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.monthlyBalance / 1000).toFixed(1)}K`}</p>
-            <p className="text-xs text-green-600">Monthly Savings</p>
+            <p className="lc-text-subtle">Monthly Savings</p>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-cream-200">
+          <div className="lc-card-stat">
             <span className="text-xl block mb-1">{typeIcons.rotational}</span>
             <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.rotationalBalance / 1000).toFixed(1)}K`}</p>
-            <p className="text-xs text-green-600">Rotational Savings</p>
+            <p className="lc-text-subtle">Rotational Savings</p>
           </div>
-          <div className="bg-white p-4 rounded-xl border border-cream-200">
+          <div className="lc-card-stat">
             <span className="text-xl block mb-1">{typeIcons.goal}</span>
             <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.goalBalance / 1000).toFixed(1)}K`}</p>
-            <p className="text-xs text-green-600">Goal-Based Savings</p>
+            <p className="lc-text-subtle">Goal-Based Savings</p>
           </div>
         </div>
 
@@ -100,11 +93,7 @@ export default function Funds() {
             <button
               key={f}
               onClick={() => { setFilter(f); setPlanPage(1); }}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
-                filter === f
-                  ? "bg-green-800 text-cream-50"
-                  : "bg-white text-green-700 border border-cream-200 hover:border-green-300"
-              }`}
+              className={`lc-tab-base ${filter === f ? "lc-tab-active" : "lc-tab-inactive"}`}
             >
               {f}
             </button>
@@ -113,13 +102,13 @@ export default function Funds() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {paginatedPlans.map((sp) => (
-            <div key={sp.id} className="bg-white p-5 rounded-xl border border-cream-200 hover:border-green-300 hover:shadow-md transition-all cursor-pointer">
+            <div key={sp.id} className="lc-card-cream cursor-pointer">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{typeIcons[sp.type]}</span>
                   <div>
                     <h3 className="font-semibold text-green-900">{sp.name}</h3>
-                    <p className="text-xs text-green-500">{sp.community}</p>
+                    <p className="lc-text-subtle">{sp.community}</p>
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColors[sp.type]}`}>{typeLabels[sp.type]}</span>
@@ -145,8 +134,8 @@ export default function Funds() {
               </div>
 
               <div className="flex gap-2">
-                <button className="flex-1 py-2 bg-green-800 text-cream-50 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors cursor-pointer">Contribute</button>
-                <button className="px-4 py-2 border border-cream-200 text-green-700 rounded-lg text-sm font-medium hover:bg-cream-50 transition-colors cursor-pointer">Details</button>
+                <button className="flex-1 lc-btn-brand-sm">Contribute</button>
+                <button className="lc-btn-outline-sm px-4 py-2">Details</button>
               </div>
             </div>
           ))}
@@ -155,8 +144,8 @@ export default function Funds() {
 
         {plans.filter((sp) => sp.type === "rotational").length > 0 && (
           <div className="mt-8">
-            <h2 className="text-lg font-bold text-green-900 mb-4">Rotational Contribution Schedule</h2>
-            <div className="bg-white rounded-xl border border-cream-200 overflow-x-auto">
+            <h2 className="lc-heading-section mb-4">Rotational Contribution Schedule</h2>
+            <div className="lc-card-border overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-cream-50">
                   <tr>

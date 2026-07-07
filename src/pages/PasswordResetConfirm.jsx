@@ -76,7 +76,7 @@ export default function PasswordResetConfirm() {
 
     setSubmitting(true);
     try {
-      const res = await confirmPasswordReset(email, code.join(""), password);
+      await confirmPasswordReset(email, code.join(""), password);
       setSuccess(true);
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
@@ -89,9 +89,9 @@ export default function PasswordResetConfirm() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center px-4 py-12">
+      <div className="lc-page-auth">
         <div className="w-full max-w-md">
-          <div className="bg-white p-8 rounded-xl border border-gray-200 text-center">
+          <div className="lc-card-auth text-center">
             <div className="w-14 h-14 rounded-full bg-brand flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -101,7 +101,7 @@ export default function PasswordResetConfirm() {
             <p className="text-gray-500 text-sm mb-6">Your password has been updated. You can now sign in with your new password.</p>
             <Link
               to="/login"
-              className="inline-block w-full bg-brand text-white py-3 rounded-lg font-bold text-[14px] text-center hover:opacity-90 transition-opacity no-underline"
+              className="lc-btn-auth no-underline inline-block"
             >
               Sign In
             </Link>
@@ -112,11 +112,11 @@ export default function PasswordResetConfirm() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 flex items-center justify-center px-4 py-12">
+    <div className="lc-page-auth">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6 no-underline">
-            <span className="text-[32px] font-bold text-brand tracking-[0.02em] uppercase">ROUND</span>
+            <span className="lc-logo-round">ROUND</span>
           </Link>
 
           {step === "code" && (
@@ -137,7 +137,7 @@ export default function PasswordResetConfirm() {
         </div>
 
         {step === "code" && (
-          <div className="bg-white p-8 rounded-xl border border-gray-200">
+          <div className="lc-card-auth">
             <div className="flex justify-center gap-2 mb-6">
               {code.map((digit, index) => (
                 <input
@@ -154,33 +154,29 @@ export default function PasswordResetConfirm() {
                 />
               ))}
             </div>
-            {error && (
-              <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
-            )}
+            {error && <p className="lc-error-msg">{error}</p>}
             <button
               onClick={handleCodeSubmit}
               disabled={code.join("").length !== 6}
-              className="w-full bg-brand text-white py-3 rounded-lg font-bold text-[14px] text-center hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="lc-btn-auth"
             >
               Confirm Code
             </button>
             <p className="text-center text-sm mt-4">
-              <Link to="/forgot-password" className="text-brand font-semibold no-underline hover:underline">
-                Request new code
-              </Link>
+              <Link to="/forgot-password" className="lc-link-auth">Request new code</Link>
             </p>
           </div>
         )}
 
         {step === "password" && (
-          <form onSubmit={handlePasswordSubmit} className="bg-white p-8 rounded-xl border border-gray-200">
+          <form onSubmit={handlePasswordSubmit} className="lc-card-auth">
             <div className="mb-4">
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="New password"
-                className="w-full px-4 py-3 rounded-lg border border-[#D1D5DB] text-brand placeholder:text-center placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-base md:text-sm"
+                className="lc-input-auth"
                 minLength={6}
                 required
               />
@@ -191,18 +187,16 @@ export default function PasswordResetConfirm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className="w-full px-4 py-3 rounded-lg border border-[#D1D5DB] text-brand placeholder:text-center placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-base md:text-sm"
+                className="lc-input-auth"
                 minLength={6}
                 required
               />
             </div>
-            {error && (
-              <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
-            )}
+            {error && <p className="lc-error-msg">{error}</p>}
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-brand text-white py-3 rounded-lg font-bold text-[14px] text-center hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="lc-btn-auth"
             >
               {submitting ? "Resetting..." : "Reset Password"}
             </button>

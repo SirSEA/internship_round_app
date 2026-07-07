@@ -5,7 +5,7 @@ import App from './App.jsx'
 import './index.css'
 
 if (import.meta.env.DEV) {
-  import('./styles/main.css')
+  import('./styles.css')
 } else {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
