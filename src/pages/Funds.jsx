@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { allSavingsPlans, user } from "../data/mock";
+import { useState, useEffect } from "react";
+import { getDashboardSummary } from "../services/api";
 import Pagination from "../components/Pagination";
 
 const PLANS_PER_PAGE = 6;
@@ -16,12 +16,47 @@ const typeIcons = { daily: "📅", monthly: "📆", rotational: "🔄", goal: "�
 
 const filters = ["All", "Daily", "Monthly", "Rotational", "Goal-Based"];
 
+const defaultSavings = {
+  dailyBalance: 0,
+  monthlyBalance: 0,
+  rotationalBalance: 0,
+  goalBalance: 0,
+};
+
+const defaultPlans = [
+  { id: 1, name: "Daily Savings", type: "daily", balance: 45000, goal: 100000, contributed: 45, members: 34, nextDue: "2026-06-22", rate: "₦1,000/day", community: "St. Mary's Church", communityId: 1 },
+  { id: 2, name: "Monthly Contribution", type: "monthly", balance: 120000, goal: 500000, contributed: 67, members: 56, nextDue: "2026-07-01", rate: "₦5,000/month", community: "Al-Noor Mosque", communityId: 2 },
+  { id: 3, name: "Rotational Ajo", type: "rotational", balance: 200000, goal: 1000000, contributed: 12, members: 20, nextDue: "2026-06-30", rate: "₦10,000/round", community: "Sunrise Neighborhood", communityId: 3, currentTurn: "Chioma Eze", nextTurn: "Emeka Nwosu" },
+  { id: 4, name: "Education Goal Fund", type: "goal", balance: 50000, goal: 1000000, contributed: 15, members: 22, nextDue: "2026-07-15", rate: "₦2,000/week", community: "Okafor Family Circle", communityId: 5, targetDate: "Dec 2026" },
+  { id: 5, name: "Emergency Savings", type: "monthly", balance: 890000, goal: 2000000, contributed: 112, members: 120, nextDue: "2026-07-01", rate: "₦2,000/month", community: "Tech Founders Guild", communityId: 6 },
+  { id: 6, name: "Building Project Savings", type: "goal", balance: 2500000, goal: 15000000, contributed: 89, members: 95, nextDue: "2026-07-05", rate: "₦10,000/month", community: "Unity High School '12", communityId: 4, targetDate: "Dec 2027" },
+];
+
 export default function Funds() {
   const [filter, setFilter] = useState("All");
   const [planPage, setPlanPage] = useState(1);
   const [tablePage, setTablePage] = useState(1);
+  const [savings, setSavings] = useState(defaultSavings);
+  const [loading, setLoading] = useState(true);
+  const [plans] = useState(defaultPlans);
 
-  const filtered = filter === "All" ? allSavingsPlans : allSavingsPlans.filter((sp) => sp.type === filter.toLowerCase().replace("-", ""));
+  useEffect(() => {
+    getDashboardSummary()
+      .then((data) => {
+        if (data.savings) {
+          setSavings({
+            dailyBalance: data.savings.dailyBalance || 0,
+            monthlyBalance: data.savings.monthlyBalance || 0,
+            rotationalBalance: data.savings.rotationalBalance || 0,
+            goalBalance: data.savings.goalBalance || 0,
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = filter === "All" ? plans : plans.filter((sp) => sp.type === filter.toLowerCase().replace("-", ""));
   const totalPlanPages = Math.ceil(filtered.length / PLANS_PER_PAGE);
   const paginatedPlans = filtered.slice((planPage - 1) * PLANS_PER_PAGE, planPage * PLANS_PER_PAGE);
 
@@ -40,22 +75,22 @@ export default function Funds() {
         <div className="grid sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-4 rounded-xl border border-cream-200">
             <span className="text-xl block mb-1">{typeIcons.daily}</span>
-            <p className="text-lg font-bold text-green-900">₦{(user.savings.dailyBalance / 1000).toFixed(1)}K</p>
+            <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.dailyBalance / 1000).toFixed(1)}K`}</p>
             <p className="text-xs text-green-600">Daily Savings</p>
           </div>
           <div className="bg-white p-4 rounded-xl border border-cream-200">
             <span className="text-xl block mb-1">{typeIcons.monthly}</span>
-            <p className="text-lg font-bold text-green-900">₦{(user.savings.monthlyBalance / 1000).toFixed(1)}K</p>
+            <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.monthlyBalance / 1000).toFixed(1)}K`}</p>
             <p className="text-xs text-green-600">Monthly Savings</p>
           </div>
           <div className="bg-white p-4 rounded-xl border border-cream-200">
             <span className="text-xl block mb-1">{typeIcons.rotational}</span>
-            <p className="text-lg font-bold text-green-900">₦{(user.savings.rotationalBalance / 1000).toFixed(1)}K</p>
+            <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.rotationalBalance / 1000).toFixed(1)}K`}</p>
             <p className="text-xs text-green-600">Rotational Savings</p>
           </div>
           <div className="bg-white p-4 rounded-xl border border-cream-200">
             <span className="text-xl block mb-1">{typeIcons.goal}</span>
-            <p className="text-lg font-bold text-green-900">₦{(user.savings.goalBalance / 1000).toFixed(1)}K</p>
+            <p className="text-lg font-bold text-green-900">{loading ? "..." : `₦${(savings.goalBalance / 1000).toFixed(1)}K`}</p>
             <p className="text-xs text-green-600">Goal-Based Savings</p>
           </div>
         </div>
@@ -118,8 +153,7 @@ export default function Funds() {
         </div>
         <Pagination page={planPage} totalPages={totalPlanPages} onPageChange={setPlanPage} />
 
-        {/* Rotational Contribution Details */}
-        {allSavingsPlans.filter((sp) => sp.type === "rotational").length > 0 && (
+        {plans.filter((sp) => sp.type === "rotational").length > 0 && (
           <div className="mt-8">
             <h2 className="text-lg font-bold text-green-900 mb-4">Rotational Contribution Schedule</h2>
             <div className="bg-white rounded-xl border border-cream-200 overflow-x-auto">
