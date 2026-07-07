@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { updateMe, requestPasswordReset, confirmPasswordReset } from "../services/api";
 
@@ -18,11 +18,11 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
 
   return (
-    <div className="flex-1 bg-cream-50 min-h-screen">
-      <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="lc-dashboard">
+      <div className="lc-dashboard-inner">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-green-900">Settings</h1>
-          <p className="text-green-700/70 text-sm">Manage your account, profile, and preferences.</p>
+          <h1 className="lc-heading-page">Settings</h1>
+          <p className="lc-text-muted text-sm">Manage your account, profile, and preferences.</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -34,8 +34,8 @@ export default function Settings() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                     activeTab === tab.id
-                      ? "bg-green-800 text-cream-50"
-                      : "text-green-700 hover:bg-green-100"
+                      ? "lc-sidebar-tab-active"
+                      : "lc-sidebar-tab-inactive"
                   }`}
                 >
                   <span>{tab.icon}</span>
@@ -46,11 +46,11 @@ export default function Settings() {
           </div>
 
           <div className="flex-1 min-w-0">
-            {activeTab === "profile" && <ProfileTab profile={profile} user={user} refreshProfile={refreshProfile} />}
+            {activeTab === "profile" && <ProfileTab key={profile?.id || "no-profile"} profile={profile} user={user} refreshProfile={refreshProfile} />}
             {activeTab === "security" && <SecurityTab />}
             {activeTab === "notifications" && <NotificationsTab />}
             {activeTab === "privacy" && <PrivacyTab />}
-            {activeTab === "password" && <PasswordTab user={user} />}
+            {activeTab === "password" && <PasswordTab key={user?.uid || "no-user"} user={user} />}
             {activeTab === "delete" && <DeleteAccountTab />}
             {activeTab === "theme" && <ThemeTab />}
             {activeTab === "language" && <LanguageTab />}
@@ -63,32 +63,17 @@ export default function Settings() {
 
 function ProfileTab({ profile, user, refreshProfile }) {
   const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    location: "",
-    bio: "",
-    family_name: "",
-    house: "",
-    village: "",
-    clan: "",
+    name: profile?.name || "",
+    phone: profile?.phone || "",
+    location: profile?.location || "",
+    bio: profile?.bio || "",
+    family_name: profile?.family_name || "",
+    house: profile?.house || "",
+    village: profile?.village || "",
+    clan: profile?.clan || "",
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name || "",
-        phone: profile.phone || "",
-        location: profile.location || "",
-        bio: profile.bio || "",
-        family_name: profile.family_name || "",
-        house: profile.house || "",
-        village: profile.village || "",
-        clan: profile.clan || "",
-      });
-    }
-  }, [profile]);
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -110,9 +95,9 @@ function ProfileTab({ profile, user, refreshProfile }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Profile</h2>
-      <p className="text-sm text-green-600 mb-6">Update your personal information and community background.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Profile</h2>
+      <p className="lc-text-body mb-6">Update your personal information and community background.</p>
 
       {message.text && (
         <div className={`mb-4 px-4 py-3 rounded-lg text-sm ${
@@ -125,51 +110,51 @@ function ProfileTab({ profile, user, refreshProfile }) {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Full Name</label>
+            <label className="lc-label">Full Name</label>
             <input
               type="text"
               value={form.name}
               onChange={handleChange("name")}
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Email</label>
+            <label className="lc-label">Email</label>
             <input
               type="email"
               value={user?.email || ""}
               disabled
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-500 bg-cream-50 cursor-not-allowed"
+              className="lc-input-settings text-green-500 bg-cream-50 cursor-not-allowed"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Phone</label>
+            <label className="lc-label">Phone</label>
             <input
               type="text"
               value={form.phone}
               onChange={handleChange("phone")}
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Location</label>
+            <label className="lc-label">Location</label>
             <input
               type="text"
               value={form.location}
               onChange={handleChange("location")}
               placeholder="City, Country"
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-green-800 mb-1">Bio</label>
+          <label className="lc-label">Bio</label>
           <textarea
             rows={3}
             value={form.bio}
             onChange={handleChange("bio")}
-            className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent resize-none"
+            className="lc-input-settings resize-none"
           />
         </div>
 
@@ -177,39 +162,39 @@ function ProfileTab({ profile, user, refreshProfile }) {
           <h3 className="text-sm font-bold text-green-900 mb-3">Community Background</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-green-800 mb-1">Family Name</label>
+              <label className="lc-label">Family Name</label>
               <input
                 type="text"
                 value={form.family_name}
                 onChange={handleChange("family_name")}
-                className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+                className="lc-input-settings"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-green-800 mb-1">House</label>
+              <label className="lc-label">House</label>
               <input
                 type="text"
                 value={form.house}
                 onChange={handleChange("house")}
-                className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+                className="lc-input-settings"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-green-800 mb-1">Village</label>
+              <label className="lc-label">Village</label>
               <input
                 type="text"
                 value={form.village}
                 onChange={handleChange("village")}
-                className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+                className="lc-input-settings"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-green-800 mb-1">Clan</label>
+              <label className="lc-label">Clan</label>
               <input
                 type="text"
                 value={form.clan}
                 onChange={handleChange("clan")}
-                className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+                className="lc-input-settings"
               />
             </div>
           </div>
@@ -219,7 +204,7 @@ function ProfileTab({ profile, user, refreshProfile }) {
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 bg-green-800 text-cream-50 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+            className="lc-btn-brand"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
@@ -231,28 +216,30 @@ function ProfileTab({ profile, user, refreshProfile }) {
 
 function SecurityTab() {
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Security</h2>
-      <p className="text-sm text-green-600 mb-6">Manage your account security settings.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Security</h2>
+      <p className="lc-text-body mb-6">Manage your account security settings.</p>
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 rounded-lg border border-cream-200">
+        <div className="lc-setting-row">
           <div>
             <p className="text-sm font-medium text-green-900">Two-Factor Authentication</p>
-            <p className="text-xs text-green-500">Add an extra layer of security to your account.</p>
+            <p className="lc-text-subtle">Add an extra layer of security to your account.</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" className="sr-only peer" />
-            <div className="w-9 h-5 bg-cream-200 rounded-full peer peer-checked:bg-green-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+          <label className="lc-toggle">
+            <input type="checkbox" />
+            <div className="lc-toggle-track" />
+            <div className="lc-toggle-thumb" />
           </label>
         </div>
-        <div className="flex items-center justify-between p-4 rounded-lg border border-cream-200">
+        <div className="lc-setting-row">
           <div>
             <p className="text-sm font-medium text-green-900">Login Alerts</p>
-            <p className="text-xs text-green-500">Get notified of new sign-ins to your account.</p>
+            <p className="lc-text-subtle">Get notified of new sign-ins to your account.</p>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" defaultChecked className="sr-only peer" />
-            <div className="w-9 h-5 bg-cream-200 rounded-full peer peer-checked:bg-green-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+          <label className="lc-toggle">
+            <input type="checkbox" defaultChecked />
+            <div className="lc-toggle-track" />
+            <div className="lc-toggle-thumb" />
           </label>
         </div>
       </div>
@@ -271,17 +258,17 @@ function NotificationsTab() {
   const [enabled, setEnabled] = useState(new Set(toggles.map((_, i) => i)));
 
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Notifications</h2>
-      <p className="text-sm text-green-600 mb-6">Choose what notifications you receive.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Notifications</h2>
+      <p className="lc-text-body mb-6">Choose what notifications you receive.</p>
       <div className="space-y-3">
         {toggles.map((t, i) => (
-          <div key={i} className="flex items-center justify-between p-4 rounded-lg border border-cream-200">
+          <div key={i} className="lc-setting-row">
             <div>
               <p className="text-sm font-medium text-green-900">{t.label}</p>
-              <p className="text-xs text-green-500">{t.desc}</p>
+              <p className="lc-text-subtle">{t.desc}</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
+            <label className="lc-toggle">
               <input
                 type="checkbox"
                 checked={enabled.has(i)}
@@ -290,9 +277,9 @@ function NotificationsTab() {
                   if (next.has(i)) next.delete(i); else next.add(i);
                   setEnabled(next);
                 }}
-                className="sr-only peer"
               />
-              <div className="w-9 h-5 bg-cream-200 rounded-full peer peer-checked:bg-green-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+              <div className="lc-toggle-track" />
+              <div className="lc-toggle-thumb" />
             </label>
           </div>
         ))}
@@ -303,9 +290,9 @@ function NotificationsTab() {
 
 function PrivacyTab() {
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Privacy</h2>
-      <p className="text-sm text-green-600 mb-6">Control who can see your information.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Privacy</h2>
+      <p className="lc-text-body mb-6">Control who can see your information.</p>
       <div className="space-y-4">
         {[
           { label: "Profile Visibility", desc: "Make your profile visible to everyone" },
@@ -313,14 +300,15 @@ function PrivacyTab() {
           { label: "Show Location", desc: "Display your location on your profile" },
           { label: "Activity Status", desc: "Show when you're active" },
         ].map((item, i) => (
-          <div key={i} className="flex items-center justify-between p-4 rounded-lg border border-cream-200">
+          <div key={i} className="lc-setting-row">
             <div>
               <p className="text-sm font-medium text-green-900">{item.label}</p>
-              <p className="text-xs text-green-500">{item.desc}</p>
+              <p className="lc-text-subtle">{item.desc}</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" defaultChecked={i !== 2} className="sr-only peer" />
-              <div className="w-9 h-5 bg-cream-200 rounded-full peer peer-checked:bg-green-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+            <label className="lc-toggle">
+              <input type="checkbox" defaultChecked={i !== 2} />
+              <div className="lc-toggle-track" />
+              <div className="lc-toggle-thumb" />
             </label>
           </div>
         ))}
@@ -337,10 +325,6 @@ function PasswordTab({ user }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (user?.email && !email) setEmail(user.email);
-  }, [user]);
 
   const handleRequestCode = async (e) => {
     e.preventDefault();
@@ -391,9 +375,9 @@ function PasswordTab({ user }) {
 
   if (step === "confirm") {
     return (
-      <div className="bg-white rounded-xl border border-cream-200 p-6">
-        <h2 className="text-lg font-bold text-green-900 mb-1">Confirm Reset</h2>
-        <p className="text-sm text-green-600 mb-6">Enter the code sent to <strong>{email}</strong> and set your new password.</p>
+      <div className="lc-card-white">
+        <h2 className="lc-heading-section mb-1">Confirm Reset</h2>
+        <p className="lc-text-body mb-6">Enter the code sent to <strong>{email}</strong> and set your new password.</p>
 
         {message.text && (
           <div className={`mb-4 px-4 py-3 rounded-lg text-sm ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{message.text}</div>
@@ -401,18 +385,18 @@ function PasswordTab({ user }) {
 
         <form onSubmit={handleConfirmReset} className="space-y-4 max-w-md">
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Verification Code</label>
+            <label className="lc-label">Verification Code</label>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="Enter code from email"
               required
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">New Password</label>
+            <label className="lc-label">New Password</label>
             <input
               type="password"
               value={newPassword}
@@ -420,11 +404,11 @@ function PasswordTab({ user }) {
               placeholder="New password"
               minLength={6}
               required
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-800 mb-1">Confirm New Password</label>
+            <label className="lc-label">Confirm New Password</label>
             <input
               type="password"
               value={confirmPassword}
@@ -432,21 +416,21 @@ function PasswordTab({ user }) {
               placeholder="Confirm new password"
               minLength={6}
               required
-              className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+              className="lc-input-settings"
             />
           </div>
           <div className="flex gap-3">
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 px-6 py-2.5 bg-green-800 text-cream-50 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="flex-1 lc-btn-brand"
             >
               {submitting ? "Resetting..." : "Reset Password"}
             </button>
             <button
               type="button"
               onClick={() => { setStep("request"); setMessage({ type: "", text: "" }); }}
-              className="px-4 py-2.5 border border-cream-200 text-green-700 rounded-lg text-sm font-medium hover:bg-cream-50 transition-colors"
+              className="lc-btn-cancel flex-1"
             >
               Back
             </button>
@@ -457,9 +441,9 @@ function PasswordTab({ user }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Password</h2>
-      <p className="text-sm text-green-600 mb-6">Change your account password. A verification code will be sent to your email.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Password</h2>
+      <p className="lc-text-body mb-6">Change your account password. A verification code will be sent to your email.</p>
 
       {message.text && (
         <div className={`mb-4 px-4 py-3 rounded-lg text-sm ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{message.text}</div>
@@ -467,20 +451,20 @@ function PasswordTab({ user }) {
 
       <form onSubmit={handleRequestCode} className="space-y-4 max-w-md">
         <div>
-          <label className="block text-sm font-medium text-green-800 mb-1">Email</label>
+          <label className="lc-label">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
-            className="w-full px-4 py-2.5 rounded-lg border border-cream-200 text-sm text-green-900 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
+            className="lc-input-settings"
           />
         </div>
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-2.5 bg-green-800 text-cream-50 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+          className="lc-btn-brand"
         >
           {submitting ? "Sending..." : "Send Verification Code"}
         </button>
@@ -494,7 +478,7 @@ function DeleteAccountTab() {
 
   return (
     <div className="bg-white rounded-xl border border-red-200 p-6">
-      <h2 className="text-lg font-bold text-red-800 mb-1">Delete Account</h2>
+      <h2 className="lc-heading-section text-red-800 mb-1">Delete Account</h2>
       <p className="text-sm text-red-600 mb-6">Permanently delete your account and all associated data. This action cannot be undone.</p>
 
       <div className="bg-red-50 rounded-lg p-4 mb-6">
@@ -536,9 +520,9 @@ function ThemeTab() {
   const [selected, setSelected] = useState("light");
 
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Theme</h2>
-      <p className="text-sm text-green-600 mb-6">Choose your preferred appearance.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Theme</h2>
+      <p className="lc-text-body mb-6">Choose your preferred appearance.</p>
       <div className="grid sm:grid-cols-3 gap-4">
         {themes.map((t) => (
           <button
@@ -572,9 +556,9 @@ function LanguageTab() {
   const [selected, setSelected] = useState("en");
 
   return (
-    <div className="bg-white rounded-xl border border-cream-200 p-6">
-      <h2 className="text-lg font-bold text-green-900 mb-1">Language</h2>
-      <p className="text-sm text-green-600 mb-6">Select your preferred language.</p>
+    <div className="lc-card-white">
+      <h2 className="lc-heading-section mb-1">Language</h2>
+      <p className="lc-text-body mb-6">Select your preferred language.</p>
       <div className="grid sm:grid-cols-2 gap-3">
         {languages.map((lang) => (
           <button

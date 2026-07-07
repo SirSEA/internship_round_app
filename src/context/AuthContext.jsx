@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
           const session = await loginWithFirebase(token);
           if (session) setProfile(session.user || session);
         } catch {
-          try { const me = await getMe(); setProfile(me); } catch {}
+          try { const me = await getMe(); setProfile(me); } catch { /* silent */ }
         }
       } else {
         localStorage.removeItem("firebase_token");
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
         try {
           const token = await fbUser.getIdToken(true);
           localStorage.setItem("firebase_token", token);
-        } catch {}
+        } catch { /* silent */ }
       }
     }, 55 * 60 * 1000);
 
@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
     }
     const token = await cred.user.getIdToken();
     localStorage.setItem("firebase_token", token);
-    try { const session = await loginWithFirebase(token); setProfile(session?.user || session || null); } catch {}
+    try { const session = await loginWithFirebase(token); setProfile(session?.user || session || null); } catch { /* silent */ }
     return cred.user;
   };
 
@@ -89,12 +89,12 @@ export function AuthProvider({ children }) {
     }
     const token = await cred.user.getIdToken();
     localStorage.setItem("firebase_token", token);
-    try { const session = await loginWithFirebase(token); setProfile(session?.user || session || null); } catch {}
+    try { const session = await loginWithFirebase(token); setProfile(session?.user || session || null); } catch { /* silent */ }
     return cred.user;
   };
 
   const logout = async () => {
-    try { await logoutSession(); } catch {}
+    try { await logoutSession(); } catch { /* silent */ }
     await signOut(auth);
     localStorage.removeItem("firebase_token");
     setProfile(null);
@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
   };
 
   const refreshProfile = async () => {
-    try { const me = await getMe(); setProfile(me); } catch {}
+    try { const me = await getMe(); setProfile(me); } catch { /* silent */ }
   };
 
   return (
@@ -112,4 +112,5 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

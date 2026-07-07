@@ -41,7 +41,6 @@ export default function CommunityHub() {
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
     Promise.all([
       getCommunityDetail(id).catch(() => null),
       getCommunityMembers(id).catch(() => []),
@@ -59,10 +58,10 @@ export default function CommunityHub() {
 
   if (loading) {
     return (
-      <div className="flex-1 bg-cream-50 min-h-screen flex items-center justify-center">
+      <div className="lc-dashboard flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-green-600">Loading community...</p>
+          <div className="lc-spinner" />
+          <p className="lc-text-body">Loading community...</p>
         </div>
       </div>
     );
@@ -70,11 +69,11 @@ export default function CommunityHub() {
 
   if (error || !community) {
     return (
-      <div className="flex-1 bg-cream-50 min-h-screen flex items-center justify-center">
+      <div className="lc-dashboard flex items-center justify-center">
         <div className="text-center">
           <span className="text-4xl block mb-4">🔍</span>
           <h2 className="text-xl font-bold text-green-900">{error || "Community not found"}</h2>
-          <Link to="/dashboard/communities" className="text-green-700 underline mt-2 inline-block">Back to communities</Link>
+          <Link to="/dashboard/communities" className="lc-link-auth underline mt-2 inline-block">Back to communities</Link>
         </div>
       </div>
     );
@@ -117,7 +116,7 @@ export default function CommunityHub() {
 
         <div className="p-6">
           {activeTab === "profile" && <ProfileTab community={community} />}
-          {activeTab === "members" && <MembersTab community={community} members={members} />}
+          {activeTab === "members" && <MembersTab members={members} />}
           {activeTab === "forum" && <ComingSoon title="Discussion Forum" />}
           {activeTab === "announcements" && <ComingSoon title="Announcements" />}
           {activeTab === "gallery" && <ComingSoon title="Community Gallery" />}
@@ -168,7 +167,7 @@ function ProfileTab({ community }) {
   );
 }
 
-function MembersTab({ community, members }) {
+function MembersTab({ members }) {
   const [page, setPage] = useState(1);
   const paginated = members.slice((page - 1) * MEMBERS_PER_PAGE, page * MEMBERS_PER_PAGE);
   return (

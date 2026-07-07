@@ -74,9 +74,7 @@ export function updateMe(payload) {
 }
 
 export async function logoutSession() {
-  const result = await request("/api/v1/auth/session/", { method: "DELETE" });
-  csrfToken = null;
-  return result;
+  return request("/api/v1/auth/session/", { method: "DELETE" });
 }
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────
@@ -202,4 +200,37 @@ export function updateCommunityMembership(membershipId, data) {
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────
+
+export function getEvents(params = {}) {
+  const qs = params.category ? `?category=${encodeURIComponent(params.category)}` : "";
+  return request(`/api/v1/events/${qs}`);
+}
+
+export function createEvent(data) {
+  return request("/api/v1/events/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ─── Marketplace ─────────────────────────────────────────────────────────
+
+export function getMarketplaceItems(params = {}) {
+  const qs = params.category ? `?category=${encodeURIComponent(params.category)}` : "";
+  return request(`/api/v1/marketplace/${qs}`);
+}
+
+// ─── Investments ─────────────────────────────────────────────────────────
+
+export function getInvestmentPools() {
+  return request("/api/v1/investments/pools/");
+}
+
+// ─── Savings Plans ───────────────────────────────────────────────────────
+
+export function getSavingsPlans() {
+  return request("/api/v1/savings/plans/");
 }

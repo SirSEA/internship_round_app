@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { getCommunities, getMyCommunitiesList, joinCommunity, createCommunity } from "../services/api";
 import { getPeople, getPeopleRecommendations, sendConnectionRequest } from "../services/api";
-import { enrichedCommunities as mockEnriched, user as mockUser, familyBranches, clans, villages, lineageRecords, allPeople, peopleRecommendations, categoryIcons } from "../data/mock";
+import { familyBranches, clans, villages, lineageRecords } from "../data/mock";
 import Pagination from "../components/Pagination";
 
 const DISCOVER_TABS = [
@@ -30,7 +30,12 @@ function getInitials(name) {
 
 export default function Communities() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "discover");
+  const [activeTab, setActiveTab] = useState(
+    (() => {
+      const t = searchParams.get("tab");
+      return t && SIDEBAR_TABS.some((s) => s.id === t) ? t : "discover";
+    })()
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [discoverCategory, setDiscoverCategory] = useState("all");
   const [allCommunities, setAllCommunities] = useState([]);
@@ -40,14 +45,6 @@ export default function Communities() {
   const [showConnectModal, setShowConnectModal] = useState(null);
 
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam && SIDEBAR_TABS.some((t) => t.id === tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    setLoading(true);
     Promise.all([
       getCommunities().catch(() => []),
       getMyCommunitiesList().catch(() => []),
@@ -62,40 +59,37 @@ export default function Communities() {
     setSearchParams(tabId !== "discover" ? { tab: tabId } : {});
   };
 
-  const searchFilter = (items, fields) => {
-    if (!searchQuery.trim()) return items;
-    const q = searchQuery.toLowerCase();
-    return items.filter((item) =>
-      fields.some((f) => {
-        const val = typeof f === "function" ? f(item) : item[f];
-        return val && String(val).toLowerCase().includes(q);
-      })
-    );
-  };
-
   const categoryFiltered = discoverCategory === "all"
     ? allCommunities
     : allCommunities.filter((c) => c.type === discoverCategory);
 
   const searchAndCategoryFiltered = useMemo(
-    () => searchFilter(categoryFiltered, ["name", "type", "description"]),
-    [searchQuery, discoverCategory, allCommunities]
+    () => {
+      const q = searchQuery.trim().toLowerCase();
+      return categoryFiltered.filter((item) =>
+        ["name", "type", "description"].some((f) => {
+          const val = item[f];
+          return val && String(val).toLowerCase().includes(q);
+        })
+      );
+    },
+    [searchQuery, categoryFiltered]
   );
 
   if (loading) {
     return (
-      <div className="flex-1 bg-cream-50 min-h-screen flex items-center justify-center">
+      <div className="lc-dashboard flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-green-600">Loading communities...</p>
+          <div className="lc-spinner" />
+          <p className="lc-text-body">Loading communities...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-cream-50 min-h-screen">
-      <div className="p-4 md:p-6 max-w-6xl mx-auto">
+    <div className="lc-dashboard">
+      <div className="lc-page-inner">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-green-900">
@@ -256,7 +250,7 @@ function CommunityCard({ community: c }) {
   );
 }
 
-function DiscoverTab({ communities, searchAndCategoryFiltered, discoverCategory, setDiscoverCategory, myCommunities }) {
+function DiscoverTab({ communities, searchAndCategoryFiltered, discoverCategory, setDiscoverCategory }) {
   const [page, setPage] = useState(1);
   const COMM_PER_PAGE = 6;
 
@@ -512,7 +506,6 @@ function LineageTab({ searchQuery }) {
 function PeopleTab({ searchQuery }) {
   const [people, setPeople] = useState([]);
   const [suggested, setSuggested] = useState([]);
-  const [page, setPage] = useState(1);
   const PEOPLE_PER_PAGE = 8;
 
   useEffect(() => {
@@ -682,7 +675,7 @@ function CreateCommunityModal({ onClose, onCreated }) {
   const [location, setLocation] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [colorKey, setColorKey] = useState("green");
-  const [bannerKey, setBannerKey] = useState("green-gradient");
+  const bannerKey = "green-gradient";
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
