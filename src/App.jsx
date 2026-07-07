@@ -3,11 +3,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import DashboardSidebar from "./components/DashboardSidebar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
+import PasswordResetConfirm from "./pages/PasswordResetConfirm";
 import Dashboard from "./pages/Dashboard";
 import Communities from "./pages/Communities";
 import CommunityHub from "./pages/CommunityHub";
@@ -16,6 +17,7 @@ import Events from "./pages/Events";
 import Funds from "./pages/Funds";
 import Marketplace from "./pages/Marketplace";
 import Investments from "./pages/Investments";
+import Settings from "./pages/Settings";
 
 function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -51,69 +53,95 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password" element={<PasswordResetConfirm />} />
         <Route
           path="/dashboard"
           element={
-            <DashboardLayout>
-              <Dashboard />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Dashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/communities"
           element={
-            <DashboardLayout>
-              <Communities />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Communities />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/community/:id"
           element={
-            <DashboardLayout>
-              <CommunityHub />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CommunityHub />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/map"
           element={
-            <DashboardLayout>
-              <Map />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Map />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/events"
           element={
-            <DashboardLayout>
-              <Events />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Events />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/funds"
           element={
-            <DashboardLayout>
-              <Funds />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Funds />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/marketplace"
           element={
-            <DashboardLayout>
-              <Marketplace />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Marketplace />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/dashboard/investments"
           element={
-            <DashboardLayout>
-              <Investments />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Investments />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/settings"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Settings />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>

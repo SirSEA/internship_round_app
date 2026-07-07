@@ -13,7 +13,6 @@ node_modules/
 dist
 dist-ssr
 *.local
-src/styles/main.css
 backend/
 # Editor directories and files
 .vscode/*

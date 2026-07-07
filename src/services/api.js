@@ -1,21 +1,28 @@
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-let csrfToken = null;
-
-const FALLBACK_ENABLED = true;
+async function getValidToken() {
+  const { auth } = await import("../lib/firebase");
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const token = await user.getIdToken(true);
+      localStorage.setItem("firebase_token", token);
+      return token;
+    } catch {
+      return localStorage.getItem("firebase_token");
+    }
+  }
+  return localStorage.getItem("firebase_token");
+}
 
 async function request(endpoint, options = {}) {
-  const token = localStorage.getItem("firebase_token");
+  const token = await getValidToken();
 
   const headers = {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
-
-  if (csrfToken) {
-    headers["X-CSRFToken"] = csrfToken;
-  }
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
@@ -24,6 +31,23 @@ async function request(endpoint, options = {}) {
   });
 
   if (res.status === 204) return null;
+
+  if (res.status === 401) {
+    const refreshed = await getValidToken();
+    if (refreshed && refreshed !== token) {
+      headers["Authorization"] = `Bearer ${refreshed}`;
+      const retryRes = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+      if (retryRes.status === 204) return null;
+      const retryData = await retryRes.json();
+      if (!retryRes.ok) throw new Error(retryData.detail || retryData.message || `Request failed (${retryRes.status})`);
+      return retryData;
+    }
+  }
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || data.message || `Request failed (${res.status})`);
   return data;
@@ -58,59 +82,124 @@ export async function logoutSession() {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 export function getDashboardSummary() {
-  return request("/dashboard/summary/");
+  return request("/api/v1/dashboard/summary/");
 }
 
 export function getDashboardActivity() {
-  return request("/dashboard/activity/");
+  return request("/api/v1/dashboard/activity/");
 }
 
 export function getPaymentReminders() {
-  return request("/dashboard/payment-reminders/");
+  return request("/api/v1/dashboard/payment-reminders/");
 }
 
 export function getMyCommunities() {
-  return request("/dashboard/my-communities/");
+  return request("/api/v1/dashboard/my-communities/");
 }
 
 export function getDashboardLifeCircleMap() {
-  return request("/dashboard/life-circle-map/");
+  return request("/api/v1/dashboard/life-circle-map/");
 }
 
 // ─── People & Connections ────────────────────────────────────────────────────
 
 export function getPeople(search) {
   const qs = search ? `?search=${encodeURIComponent(search)}` : "";
-  return request(`/people/${qs}`);
+  return request(`/api/v1/people/${qs}`);
 }
 
 export function getPeopleRecommendations() {
-  return request("/people/recommendations/");
+  return request("/api/v1/people/recommendations/");
 }
 
-export function getConnectionRequests() {
-  return request("/connections/requests/");
+export function getConnectionRequests(params = {}) {
+  const qs = params.status || params.direction
+    ? `?${new URLSearchParams(params).toString()}`
+    : "";
+  return request(`/api/v1/connections/requests/${qs}`);
 }
 
 export function sendConnectionRequest(data) {
-  return request("/connections/requests/", {
+  return request("/api/v1/connections/requests/", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 export function acceptConnectionRequest(requestId) {
-  return request(`/connections/requests/${requestId}/accept/`, {
+  return request(`/api/v1/connections/requests/${requestId}/accept/`, {
     method: "POST",
   });
 }
 
 export function rejectConnectionRequest(requestId) {
-  return request(`/connections/requests/${requestId}/reject/`, {
+  return request(`/api/v1/connections/requests/${requestId}/reject/`, {
     method: "POST",
   });
 }
 
 export function getConnections() {
-  return request("/connections/");
+  return request("/api/v1/connections/");
+}
+
+// ─── Password Reset ──────────────────────────────────────────────────────────
+
+export function requestPasswordReset(email) {
+  return request("/api/v1/auth/password-reset/request/", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function confirmPasswordReset(email, code, password) {
+  return request("/api/v1/auth/password-reset/confirm/", {
+    method: "POST",
+    body: JSON.stringify({ email, code, password }),
+  });
+}
+
+// ─── Communities ─────────────────────────────────────────────────────────────
+
+export function getCommunities(params = {}) {
+  const qs = params.category ? `?category=${encodeURIComponent(params.category)}` : "";
+  return request(`/api/v1/communities/${qs}`);
+}
+
+export function createCommunity(data) {
+  return request("/api/v1/communities/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export function joinCommunity(communityId) {
+  return request(`/api/v1/communities/${communityId}/join/`, {
+    method: "POST",
+  });
+}
+
+export function getCommunityDetail(communityId) {
+  return request(`/api/v1/communities/${communityId}/`);
+}
+
+export function getMyCommunitiesList() {
+  return request("/api/v1/communities/my/");
+}
+
+export function updateCommunity(communityId, data) {
+  return request(`/api/v1/communities/${communityId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export function getCommunityMembers(communityId) {
+  return request(`/api/v1/communities/${communityId}/members/`);
+}
+
+export function updateCommunityMembership(membershipId, data) {
+  return request(`/api/v1/community-memberships/${membershipId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }

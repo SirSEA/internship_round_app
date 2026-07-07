@@ -50,7 +50,21 @@ export function AuthProvider({ children }) {
       }
       setLoading(false);
     });
-    return unsubscribe;
+
+    const interval = setInterval(async () => {
+      const fbUser = auth.currentUser;
+      if (fbUser) {
+        try {
+          const token = await fbUser.getIdToken(true);
+          localStorage.setItem("firebase_token", token);
+        } catch {}
+      }
+    }, 55 * 60 * 1000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, []);
 
   const login = async (email, password) => {
